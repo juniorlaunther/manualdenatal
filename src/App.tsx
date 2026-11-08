@@ -6,7 +6,7 @@ const faqs = [
   {
     icon: "🎄",
     question: "Para quem é indicado o Manual Para Desenhar - Edição de Natal?",
-    answer: "O Manual é para todas as idades e níveis de experiência! Desde quem está dando os primeiros passos no desenho e quer se divertir criando personagens fofos e mágicos de Natal, até quem já desenha e quer destravar seu repertório com gorrinhos, presentes, pinheiros, enfeites, biscoitinhos e criaturinhas encantadas."
+    answer: "O Manual é para todas as idades e níveis de experiência! Desde quem está dando os primeiros passos no desenho e quer se divertir criando personagens fofos e mágicos de Natal, até quem já desenha e quer destravar seu repertório com gorrinhos, presentes, pinheiros, enfeites e criaturinhas encantadas."
   },
   {
     icon: "⭐",
