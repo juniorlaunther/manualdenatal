@@ -187,12 +187,127 @@ function ChristmasLogoHeader() {
   );
 }
 
+// Fake Purchase Notification Toast (Christmas Themed) isolated to avoid re-rendering entire app
+function PurchaseNotificationToast() {
+  const [purchaseNotification, setPurchaseNotification] = useState<string | null>(null);
+
+  useEffect(() => {
+    const names = [
+      "Ana", "Paulo", "Maria", "João", "Pedro", "Lucas", "Julia", "Marcos", "Fernanda", "Gabriel", 
+      "Luana", "Carlos", "Juliana", "Rafael", "Camila", "Rodrigo", "Amanda", "Diego", "Letícia", 
+      "Bruno", "Carolina", "Thiago", "Beatriz", "Felipe", "Mariana", "Gustavo", "Renata", 
+      "Leonardo", "Larissa", "Ricardo", "Vanessa", "Daniel", "Patricia"
+    ];
+
+    let timeoutId: NodeJS.Timeout;
+    let isCombo = Math.random() > 0.5;
+    let consecutiveCount = 0;
+
+    const showRandomNotification = () => {
+      const randomName = names[Math.floor(Math.random() * names.length)];
+      const productText = isCombo ? "o COMBO de Manuais" : "o Manual de Natal";
+      setPurchaseNotification(`${randomName} comprou ${productText}`);
+
+      if (consecutiveCount >= 1) {
+        isCombo = !isCombo;
+        consecutiveCount = 0;
+      } else {
+        const switchProduct = Math.random() < 0.7;
+        if (switchProduct) {
+          isCombo = !isCombo;
+          consecutiveCount = 0;
+        } else {
+          consecutiveCount++;
+        }
+      }
+
+      setTimeout(() => {
+        setPurchaseNotification(null);
+        const nextDelay = Math.floor(Math.random() * 10000) + 5000;
+        timeoutId = setTimeout(showRandomNotification, nextDelay);
+      }, 3200);
+    };
+
+    const initialDelay = Math.floor(Math.random() * 8000) + 4000;
+    timeoutId = setTimeout(showRandomNotification, initialDelay);
+
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {purchaseNotification && (
+        <motion.div
+          initial={{ opacity: 0, y: 50, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.9 }}
+          className="fixed bottom-6 left-6 z-50 bg-[#0e1c44] text-[#ffffff] px-5 py-3 rounded-2xl border-3 border-[#FB0C17] shadow-[5px_5px_0px_0px_#04091a] flex items-center gap-3 font-bold text-sm md:text-base pointer-events-none"
+        >
+          <div className={`w-8 h-8 ${purchaseNotification.includes("COMBO") ? "bg-[#b8040d] border-[#fbbf24]" : "bg-[#FB0C17] border-[#f59e0b]"} rounded-full flex items-center justify-center shrink-0 border`}>
+            {purchaseNotification.includes("COMBO") ? (
+              <Gift className="w-4 h-4 text-[#fef08a]" />
+            ) : (
+              <span className="text-base">🎄</span>
+            )}
+          </div>
+          <span className="text-[#f8fafc]">{purchaseNotification}</span>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// Reusable Dual Purchase Buttons Group (Manual Individual + COMBO em Destaque)
+function DualPurchaseButtons({ checkoutUrl, comboCheckoutUrl }: { checkoutUrl: string; comboCheckoutUrl: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-5 px-3 max-w-md mx-auto w-full">
+      {/* Botão 1: Comprar Agora (Manual Individual) */}
+      <div className="relative w-full">
+        <a 
+          href={checkoutUrl} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="w-full bg-[#0a1432] hover:bg-[#12214d] text-white text-base sm:text-lg font-bold py-3.5 px-4 rounded-2xl border-3 border-[#FB0C17] shadow-[4px_4px_0px_0px_#04091a] hover:translate-y-0.5 hover:translate-x-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <ShoppingCart className="w-5 h-5 shrink-0 text-[#fbbf24]" />
+          <span className="text-center leading-tight whitespace-nowrap tracking-wide">COMPRAR AGORA</span>
+        </a>
+      </div>
+
+      {/* Botão 2: COMPRAR COMBO (COM MAIOR DESTAQUE VISUAL) */}
+      <div className="relative w-full">
+        <div className="absolute -top-4 -right-2 md:-right-3 z-20 pointer-events-none rotate-12">
+          <span className="inline-block bg-[#fbbf24] text-[#04091a] text-xs sm:text-sm font-black px-3 py-1 rounded-full border-2 border-[#04091a] shadow-[2px_2px_0px_0px_#FB0C17] animate-scale-pulse tracking-wide uppercase">
+            ⭐ O MAIS ESCOLHIDO
+          </span>
+        </div>
+
+        <a 
+          href={comboCheckoutUrl} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="w-full bg-gradient-to-r from-[#FB0C17] via-[#ff2a34] to-[#e60914] hover:from-[#d90913] hover:to-[#FB0C17] text-white text-xl sm:text-2xl font-black py-4 md:py-4.5 px-4 sm:px-6 rounded-2xl border-4 border-[#04091a] shadow-[6px_6px_0px_0px_#fbbf24] hover:translate-y-1 hover:translate-x-1 hover:shadow-[3px_3px_0px_0px_#fbbf24] transition-all flex flex-col items-center justify-center gap-0.5 animate-shine cursor-pointer group"
+        >
+          <div className="flex items-center justify-center gap-2.5">
+            <Gift className="w-6 h-6 shrink-0 text-[#fef08a] animate-wiggle" />
+            <span className="text-center leading-tight whitespace-nowrap tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+              COMPRAR COMBO
+            </span>
+          </div>
+          <span className="text-xs sm:text-sm font-bold text-[#fef08a] drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+            2 Manuais (Original + Natal)
+          </span>
+        </a>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [activeTestimonialIndex, setActiveTestimonialIndex] = useState(0);
   const [lightboxData, setLightboxData] = useState<{ index: number, type: 'product' | 'testimonial' } | null>(null);
   const [direction, setDirection] = useState(0);
-  const [purchaseNotification, setPurchaseNotification] = useState<string | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState("https://pay.cakto.com.br/9zdhfvr");
   const [comboCheckoutUrl, setComboCheckoutUrl] = useState("https://pay.cakto.com.br/pfpgcid");
@@ -250,68 +365,20 @@ export default function App() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const testimonialRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const names = [
-      "Ana", "Paulo", "Maria", "João", "Pedro", "Lucas", "Julia", "Marcos", "Fernanda", "Gabriel", 
-      "Luana", "Carlos", "Juliana", "Rafael", "Camila", "Rodrigo", "Amanda", "Diego", "Letícia", 
-      "Bruno", "Carolina", "Thiago", "Beatriz", "Felipe", "Mariana", "Gustavo", "Renata", 
-      "Leonardo", "Larissa", "Ricardo", "Vanessa", "Daniel", "Patricia"
-    ];
-
-    let timeoutId: NodeJS.Timeout;
-    let isCombo = Math.random() > 0.5;
-    let consecutiveCount = 0;
-
-    const showRandomNotification = () => {
-      const randomName = names[Math.floor(Math.random() * names.length)];
-      const productText = isCombo ? "o COMBO de Manuais" : "o Manual de Natal";
-      setPurchaseNotification(`${randomName} comprou ${productText}`);
-
-      if (consecutiveCount >= 1) {
-        isCombo = !isCombo;
-        consecutiveCount = 0;
-      } else {
-        const switchProduct = Math.random() < 0.7;
-        if (switchProduct) {
-          isCombo = !isCombo;
-          consecutiveCount = 0;
-        } else {
-          consecutiveCount++;
-        }
-      }
-
-      setTimeout(() => {
-        setPurchaseNotification(null);
-        const nextDelay = Math.floor(Math.random() * 10000) + 5000;
-        timeoutId = setTimeout(showRandomNotification, nextDelay);
-      }, 3200);
-    };
-
-    const initialDelay = Math.floor(Math.random() * 8000) + 4000;
-    timeoutId = setTimeout(showRandomNotification, initialDelay);
-
-    return () => clearTimeout(timeoutId);
-  }, []);
-
+  const scrollRaf = useRef<number | null>(null);
   const handleScroll = () => {
-    if (carouselRef.current) {
+    if (scrollRaf.current !== null) return;
+    scrollRaf.current = requestAnimationFrame(() => {
+      scrollRaf.current = null;
+      if (!carouselRef.current) return;
       const container = carouselRef.current;
-      const containerCenter = container.scrollLeft + container.offsetWidth / 2;
-      let closestIndex = 0;
-      let minDistance = Infinity;
-
-      Array.from(container.children).forEach((child, index) => {
-        const childElement = child as HTMLElement;
-        const childCenter = (childElement.offsetLeft - container.offsetLeft) + childElement.offsetWidth / 2;
-        const distance = Math.abs(containerCenter - childCenter);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestIndex = index;
-        }
-      });
-
-      setActiveIndex(closestIndex);
-    }
+      const firstChild = container.firstElementChild as HTMLElement | null;
+      if (!firstChild) return;
+      const itemWidth = firstChild.offsetWidth + 16;
+      const newIndex = Math.round(container.scrollLeft / itemWidth);
+      const clampedIndex = Math.max(0, Math.min(newIndex, productImages.length - 1));
+      setActiveIndex((prev) => (prev !== clampedIndex ? clampedIndex : prev));
+    });
   };
 
   const scrollToImage = (index: number) => {
@@ -328,25 +395,20 @@ export default function App() {
     }
   };
 
+  const testimonialScrollRaf = useRef<number | null>(null);
   const handleTestimonialScroll = () => {
-    if (testimonialRef.current) {
+    if (testimonialScrollRaf.current !== null) return;
+    testimonialScrollRaf.current = requestAnimationFrame(() => {
+      testimonialScrollRaf.current = null;
+      if (!testimonialRef.current) return;
       const container = testimonialRef.current;
-      const containerCenter = container.scrollLeft + container.offsetWidth / 2;
-      let closestIndex = 0;
-      let minDistance = Infinity;
-
-      Array.from(container.children).forEach((child, index) => {
-        const childElement = child as HTMLElement;
-        const childCenter = (childElement.offsetLeft - container.offsetLeft) + childElement.offsetWidth / 2;
-        const distance = Math.abs(containerCenter - childCenter);
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestIndex = index;
-        }
-      });
-
-      setActiveTestimonialIndex(closestIndex);
-    }
+      const firstChild = container.firstElementChild as HTMLElement | null;
+      if (!firstChild) return;
+      const itemWidth = firstChild.offsetWidth + 16;
+      const newIndex = Math.round(container.scrollLeft / itemWidth);
+      const clampedIndex = Math.max(0, Math.min(newIndex, testimonialImages.length - 1));
+      setActiveTestimonialIndex((prev) => (prev !== clampedIndex ? clampedIndex : prev));
+    });
   };
 
   const scrollToTestimonialImage = (index: number) => {
@@ -402,6 +464,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen pb-20 selection:bg-[#FB0C17] selection:text-white overflow-x-hidden relative text-[#f8fafc]">
+      {/* GPU-accelerated fixed starry night sky */}
+      <div className="starry-background" aria-hidden="true" />
       
       {/* Background gentle snowfall */}
       <SnowfallOverlay />
@@ -538,9 +602,6 @@ export default function App() {
                     className={`bg-[#0a1432] p-2.5 md:p-3 border-4 border-[#FB0C17] shadow-[6px_6px_0px_0px_#f59e0b] rounded-2xl w-full transition-transform duration-300 hover:scale-105 cursor-pointer relative ${i % 2 === 0 ? 'rotate-1 hover:rotate-2' : '-rotate-1 hover:-rotate-2'}`}
                     onClick={() => setLightboxData({ index: i, type: 'product' })}
                   >
-                    {/* Washi tape on sample sketchbook page */}
-                    <WashiTape type={i % 2 === 0 ? 'candy' : 'gold'} className={i % 2 === 0 ? '-top-2 -left-2 -rotate-12' : '-top-2 -right-2 rotate-12'} />
-                    
                     <div className="relative overflow-hidden rounded-xl">
                       <img 
                         src={url} 
@@ -550,7 +611,7 @@ export default function App() {
                         loading={i === 0 ? "eager" : "lazy"}
                         fetchPriority={i === 0 ? "high" : "auto"}
                         decoding="async"
-                        className="w-full aspect-[3/4] object-cover rounded-xl border-2 border-dashed border-[#f59e0b]/70 pointer-events-none" 
+                        className="w-full aspect-[3/4] object-cover rounded-xl pointer-events-none" 
                       />
                     </div>
                   </div>
@@ -864,8 +925,6 @@ export default function App() {
                       className={`bg-[#0a1432] p-2.5 md:p-3 border-4 border-[#FB0C17] shadow-[6px_6px_0px_0px_#f59e0b] rounded-2xl w-full transition-transform duration-300 hover:scale-105 cursor-pointer relative ${i % 2 === 0 ? 'rotate-1 hover:rotate-2' : '-rotate-1 hover:-rotate-2'}`}
                       onClick={() => setLightboxData({ index: i, type: 'testimonial' })}
                     >
-                      <WashiTape type={i % 2 === 0 ? 'candy' : 'gold'} className={i % 2 === 0 ? '-top-2 -right-2 rotate-12' : '-top-2 -left-2 -rotate-12'} />
-
                       <img 
                         src={url} 
                         alt={`Depoimento ${i + 1}`} 
@@ -873,7 +932,7 @@ export default function App() {
                         decoding="async"
                         width={480}
                         height={640}
-                        className="w-full aspect-[3/4] object-cover rounded-xl border-2 border-dashed border-[#f59e0b]/60 pointer-events-none" 
+                        className="w-full aspect-[3/4] object-cover rounded-xl pointer-events-none" 
                       />
                     </div>
                  </div>
@@ -908,10 +967,10 @@ export default function App() {
              
              <div className="relative z-10 text-center md:text-left">
                <h3 className="text-2xl md:text-3xl font-bold mb-2 text-[#ffffff]">
-                  Garantia Mágica de 7 Dias 🛡️
+                  Garantia de 7 Dias 🛡️
                 </h3>
                <p className="text-lg md:text-xl text-[#cbd5e1] leading-relaxed">
-                 Teste o Manual por 7 dias inteiros. Se você achar que ele não ajudou você a se divertir e destravar sua criatividade mágica, basta pedir que devolvemos 100% do seu dinheiro. Sem pegadinhas, sem burocracia.
+                 Teste o Manual por 7 dias inteiros. Se você achar que ele não ajudou você a se divertir e destravar sua criatividade, basta pedir que devolvemos 100% do seu dinheiro. Sem pegadinhas, sem burocracia.
                </p>
              </div>
            </div>
@@ -970,37 +1029,10 @@ export default function App() {
           <p className="text-lg md:text-xl text-[#fbbf24] mb-6 max-w-md mx-auto font-medium">
             Pegue seu papel, caneta e dê vida à magia que mora na sua imaginação!
           </p>
-          <div className="flex justify-center px-2">
-            <a 
-              href={checkoutUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="w-full max-w-sm bg-gradient-to-r from-[#FB0C17] to-[#ff2a34] hover:from-[#d90913] hover:to-[#FB0C17] text-white text-lg sm:text-xl md:text-2xl font-black py-3.5 md:py-4 px-4 sm:px-6 md:px-8 rounded-2xl border-4 border-[#04091a] shadow-[5px_5px_0px_0px_#f59e0b] hover:translate-y-1 hover:translate-x-1 hover:shadow-[2px_2px_0px_0px_#f59e0b] transition-all flex items-center justify-center gap-2 animate-shine cursor-pointer"
-            >
-              <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 animate-wiggle text-white" />
-              <span className="text-center leading-tight whitespace-nowrap tracking-wide">QUERO MEU MANUAL</span>
-            </a>
-          </div>
+          <DualPurchaseButtons checkoutUrl={checkoutUrl} comboCheckoutUrl={comboCheckoutUrl} />
         </section>
 
-        {/* WhatsApp CTA */}
-        <section className="mb-14 text-center max-w-md mx-auto">
-          <h3 className="text-2xl md:text-3xl font-bold mb-3 text-[#ffffff]">Ainda tem dúvidas?</h3>
-          <p className="text-base md:text-lg text-[#cbd5e1] mb-5">
-            Fale direto comigo no WhatsApp e tire qualquer dúvida antes de comprar!
-          </p>
-          <div className="flex justify-center px-2">
-            <a 
-              href="https://wa.me/5519988508110?text=Ol%C3%A1!%20Vim%20do%20site%20do%20manual%20de%20Natal.%20Tenho%20uma%20d%C3%BAvida." 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="w-full max-w-sm bg-[#25D366] hover:bg-[#1DA851] text-white text-lg sm:text-xl font-bold py-3.5 md:py-4 px-4 sm:px-6 md:px-8 rounded-2xl border-4 border-[#04091a] shadow-[5px_5px_0px_0px_#FB0C17] hover:translate-y-1 hover:translate-x-1 hover:shadow-[2px_2px_0px_0px_#FB0C17] transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-               <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 animate-wiggle" />
-               <span className="text-center leading-tight whitespace-nowrap tracking-wide">Falar no WhatsApp</span>
-            </a>
-          </div>
-        </section>
+
 
         {/* Quem criou o Manual? */}
         <section className="mb-14 max-w-3xl mx-auto">
@@ -1045,43 +1077,25 @@ export default function App() {
         </section>
 
         {/* Final CTA Buttons: Comprar Agora + COMPRAR COMBO em Destaque */}
-        <section className="mb-14 flex flex-col items-center justify-center gap-5 px-3 max-w-md mx-auto">
-          {/* Botão 1: Comprar Agora (Manual Individual) */}
-          <div className="relative w-full">
+        <section className="mb-14">
+          <DualPurchaseButtons checkoutUrl={checkoutUrl} comboCheckoutUrl={comboCheckoutUrl} />
+        </section>
+
+        {/* WhatsApp CTA (Moved to end before footer) */}
+        <section className="mb-14 text-center max-w-md mx-auto">
+          <h3 className="text-2xl md:text-3xl font-bold mb-3 text-[#ffffff]">Ainda tem dúvidas?</h3>
+          <p className="text-base md:text-lg text-[#cbd5e1] mb-5">
+            Fale direto comigo no WhatsApp e tire qualquer dúvida antes de comprar!
+          </p>
+          <div className="flex justify-center px-2">
             <a 
-              href={checkoutUrl} 
+              href="https://wa.me/5519988508110?text=Ol%C3%A1!%20Vim%20do%20site%20do%20manual%20de%20Natal.%20Tenho%20uma%20d%C3%BAvida." 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="w-full bg-[#0a1432] hover:bg-[#12214d] text-white text-base sm:text-lg font-bold py-3.5 px-4 rounded-2xl border-3 border-[#FB0C17] shadow-[4px_4px_0px_0px_#04091a] hover:translate-y-0.5 hover:translate-x-0.5 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full max-w-sm bg-[#25D366] hover:bg-[#1DA851] text-white text-lg sm:text-xl font-bold py-3.5 md:py-4 px-4 sm:px-6 md:px-8 rounded-2xl border-4 border-[#04091a] shadow-[5px_5px_0px_0px_#FB0C17] hover:translate-y-1 hover:translate-x-1 hover:shadow-[2px_2px_0px_0px_#FB0C17] transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
-              <ShoppingCart className="w-5 h-5 shrink-0 text-[#fbbf24]" />
-              <span className="text-center leading-tight whitespace-nowrap tracking-wide">COMPRAR AGORA (R$ 27,90)</span>
-            </a>
-          </div>
-
-          {/* Botão 2: COMPRAR COMBO (COM MAIOR DESTAQUE VISUAL) */}
-          <div className="relative w-full">
-            <div className="absolute -top-4 -right-2 md:-right-3 z-20 pointer-events-none rotate-12">
-              <span className="inline-block bg-[#fbbf24] text-[#04091a] text-xs sm:text-sm font-black px-3 py-1 rounded-full border-2 border-[#04091a] shadow-[2px_2px_0px_0px_#FB0C17] animate-scale-pulse tracking-wide uppercase">
-                ⭐ O MAIS ESCOLHIDO
-              </span>
-            </div>
-
-            <a 
-              href={comboCheckoutUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="w-full bg-gradient-to-r from-[#FB0C17] via-[#ff2a34] to-[#e60914] hover:from-[#d90913] hover:to-[#FB0C17] text-white text-xl sm:text-2xl font-black py-4 md:py-4.5 px-4 sm:px-6 rounded-2xl border-4 border-[#04091a] shadow-[6px_6px_0px_0px_#fbbf24] hover:translate-y-1 hover:translate-x-1 hover:shadow-[3px_3px_0px_0px_#fbbf24] transition-all flex flex-col items-center justify-center gap-0.5 animate-shine cursor-pointer group"
-            >
-              <div className="flex items-center justify-center gap-2.5">
-                <Gift className="w-6 h-6 shrink-0 text-[#fef08a] animate-wiggle" />
-                <span className="text-center leading-tight whitespace-nowrap tracking-wide text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-                  COMPRAR COMBO
-                </span>
-              </div>
-              <span className="text-xs sm:text-sm font-bold text-[#fef08a] drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
-                2 Manuais (Original + Natal) por R$ 47,90
-              </span>
+               <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 shrink-0 animate-wiggle" />
+               <span className="text-center leading-tight whitespace-nowrap tracking-wide">Falar no WhatsApp</span>
             </a>
           </div>
         </section>
@@ -1115,26 +1129,8 @@ export default function App() {
         <div className="mt-3 text-xl">🎄✨</div>
       </footer>
 
-      {/* Fake Purchase Notification (Christmas Themed) */}
-      <AnimatePresence>
-        {purchaseNotification && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-6 left-6 z-50 bg-[#0e1c44] text-[#ffffff] px-5 py-3 rounded-2xl border-3 border-[#FB0C17] shadow-[5px_5px_0px_0px_#04091a] flex items-center gap-3 font-bold text-sm md:text-base pointer-events-none"
-          >
-            <div className={`w-8 h-8 ${purchaseNotification.includes("COMBO") ? "bg-[#b8040d] border-[#fbbf24]" : "bg-[#FB0C17] border-[#f59e0b]"} rounded-full flex items-center justify-center shrink-0 border`}>
-              {purchaseNotification.includes("COMBO") ? (
-                <Gift className="w-4 h-4 text-[#fef08a]" />
-              ) : (
-                <span className="text-base">🎄</span>
-              )}
-            </div>
-            <span className="text-[#f8fafc]">{purchaseNotification}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Fake Purchase Notification Toast (Christmas Themed) */}
+      <PurchaseNotificationToast />
     </div>
   );
 }

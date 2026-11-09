@@ -17,6 +17,18 @@
 body {
   font-family: 'Patrick Hand', cursive, sans-serif;
   background-color: #04091a;
+  color: #f8fafc;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dedicated hardware-accelerated fixed starry background */
+.starry-background {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -10;
+  background-color: #04091a;
   background-image: 
     /* Deep midnight sapphire aura at the top */
     radial-gradient(ellipse 100% 60% at 50% -10%, rgba(30, 72, 160, 0.45), transparent 75%),
@@ -32,15 +44,13 @@ body {
     radial-gradient(circle 1.2px at 42% 22%, rgba(255, 255, 255, 0.9) 1px, transparent 1.2px),
     radial-gradient(circle 2px at 72% 58%, rgba(255, 255, 255, 0.95) 1px, transparent 1.2px),
     radial-gradient(circle 1.5px at 28% 68%, rgba(254, 240, 138, 0.9) 1px, transparent 1.2px),
-    radial-gradient(circle 2.5px at 64% 35%, rgba(255, 255, 255, 0.95) 1.2px, transparent 1.5px),
+    radial-gradient(circle 2.5px at 64% 35%, rgba(255, 255, 255, 0.95) 1px, transparent 1.2px),
     radial-gradient(circle 1.5px at 94% 74%, rgba(255, 255, 255, 0.9) 1px, transparent 1.2px),
     radial-gradient(circle 1px at 32% 84%, rgba(255, 255, 255, 0.8) 1px, transparent 1.2px),
     radial-gradient(circle 2px at 6% 48%, rgba(254, 240, 138, 0.9) 1px, transparent 1.2px);
   background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 250px 250px, 320px 320px, 230px 230px, 290px 290px, 210px 210px, 340px 340px, 270px 270px, 220px 220px, 300px 300px;
-  background-attachment: fixed;
-  color: #f8fafc;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -70,8 +80,8 @@ body {
 }
 
 @keyframes twinkle {
-  0%, 100% { opacity: 0.35; transform: scale(0.92); }
-  50% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.95)); }
+  0%, 100% { opacity: 0.45; transform: scale3d(0.92, 0.92, 1); }
+  50% { opacity: 1; transform: scale3d(1.12, 1.12, 1); }
 }
 
 @keyframes slide-x {
@@ -81,7 +91,7 @@ body {
 
 @keyframes scale-pulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.07); }
+  50% { transform: scale(1.06); }
 }
 
 @keyframes scale-soft {
@@ -91,35 +101,42 @@ body {
 
 .animate-wiggle {
   animation: wiggle 2.2s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-float-magical {
   animation: float-magical 4s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-twinkle {
   animation: twinkle 2.2s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .animate-slide-x {
   animation: slide-x 2s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-scale-pulse {
   animation: scale-pulse 2s ease-in-out infinite;
+  will-change: transform;
 }
 
 .animate-scale-soft {
   animation: scale-soft 3s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes shine {
-  0% { transform: translateX(-200%) skewX(-20deg); }
-  25%, 100% { transform: translateX(300%) skewX(-20deg); }
+  0% { transform: translate3d(-200%, 0, 0) skewX(-20deg); }
+  25%, 100% { transform: translate3d(300%, 0, 0) skewX(-20deg); }
 }
 
 .animate-shine {
@@ -137,6 +154,7 @@ body {
   background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.45), transparent);
   animation: shine 3s infinite ease-in-out;
   pointer-events: none;
+  will-change: transform;
 }
 
 @keyframes spin-border {
@@ -150,11 +168,12 @@ body {
 
 .animate-spin-slow {
   animation: spin-border 14s linear infinite;
+  will-change: transform;
 }
 
 @keyframes snowfall {
   0% {
-    transform: translateY(-20px) translateX(0px) rotate(0deg);
+    transform: translate3d(0, -20px, 0) rotate(0deg);
     opacity: 0;
   }
   15% {
@@ -164,13 +183,14 @@ body {
     opacity: 0.8;
   }
   100% {
-    transform: translateY(105vh) translateX(30px) rotate(360deg);
+    transform: translate3d(30px, 105vh, 0) rotate(360deg);
     opacity: 0;
   }
 }
 
 .animate-snowfall {
   animation: snowfall linear infinite;
+  will-change: transform;
 }
 
 /* Diagonal candy-cane washi tape texture for sketchbook cards */
