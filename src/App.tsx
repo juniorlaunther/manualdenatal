@@ -284,8 +284,9 @@ function DualPurchaseButtons({ checkoutUrl, comboCheckoutUrl }: { checkoutUrl: s
 
         <a 
           href={comboCheckoutUrl} 
-          target="_blank" 
-          rel="noopener noreferrer" 
+          target={comboCheckoutUrl.startsWith("http") ? "_blank" : undefined}
+          rel={comboCheckoutUrl.startsWith("http") ? "noopener noreferrer" : undefined}
+          onClick={comboCheckoutUrl === "#" ? (e) => e.preventDefault() : undefined}
           className="w-full bg-gradient-to-r from-[#FB0C17] via-[#ff2a34] to-[#e60914] hover:from-[#d90913] hover:to-[#FB0C17] text-white text-xl sm:text-2xl font-black py-4 md:py-4.5 px-4 sm:px-6 rounded-2xl border-4 border-[#04091a] shadow-[6px_6px_0px_0px_#fbbf24] hover:translate-y-1 hover:translate-x-1 hover:shadow-[3px_3px_0px_0px_#fbbf24] transition-all flex flex-col items-center justify-center gap-0.5 animate-shine cursor-pointer group"
         >
           <div className="flex items-center justify-center gap-2.5">
@@ -309,12 +310,12 @@ export default function App() {
   const [lightboxData, setLightboxData] = useState<{ index: number, type: 'product' | 'testimonial' } | null>(null);
   const [direction, setDirection] = useState(0);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
-  const [checkoutUrl, setCheckoutUrl] = useState("https://pay.cakto.com.br/9zdhfvr");
-  const [comboCheckoutUrl, setComboCheckoutUrl] = useState("https://pay.cakto.com.br/pfpgcid");
+  const [checkoutUrl, setCheckoutUrl] = useState("https://pay.cakto.com.br/wauej57");
+  const [comboCheckoutUrl, setComboCheckoutUrl] = useState("#");
 
   useEffect(() => {
-    const checkoutBaseUrl = "https://pay.cakto.com.br/9zdhfvr";
-    const comboBaseUrl = "https://pay.cakto.com.br/pfpgcid";
+    const checkoutBaseUrl = "https://pay.cakto.com.br/wauej57";
+    const comboBaseUrl = "#";
     const allowedParams = [
       "utm_source",
       "utm_medium",
@@ -347,16 +348,24 @@ export default function App() {
       }
 
       const newCheckoutUrl = new URL(checkoutBaseUrl);
-      const newComboUrl = new URL(comboBaseUrl);
       allowedParams.forEach(key => {
         if (storedParams[key]) {
           newCheckoutUrl.searchParams.set(key, storedParams[key]);
-          newComboUrl.searchParams.set(key, storedParams[key]);
         }
       });
-
       setCheckoutUrl(newCheckoutUrl.toString());
-      setComboCheckoutUrl(newComboUrl.toString());
+
+      if (comboBaseUrl && comboBaseUrl.startsWith("http")) {
+        const newComboUrl = new URL(comboBaseUrl);
+        allowedParams.forEach(key => {
+          if (storedParams[key]) {
+            newComboUrl.searchParams.set(key, storedParams[key]);
+          }
+        });
+        setComboCheckoutUrl(newComboUrl.toString());
+      } else {
+        setComboCheckoutUrl("#");
+      }
     } catch (e) {
       console.error("Error setting UTM params", e);
     }
@@ -892,8 +901,9 @@ export default function App() {
 
                   <a 
                     href={comboCheckoutUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                    target={comboCheckoutUrl.startsWith("http") ? "_blank" : undefined}
+                    rel={comboCheckoutUrl.startsWith("http") ? "noopener noreferrer" : undefined}
+                    onClick={comboCheckoutUrl === "#" ? (e) => e.preventDefault() : undefined}
                     className="w-full bg-[#04091a] hover:bg-[#0e1c44] text-white hover:text-[#fbbf24] text-base sm:text-lg md:text-xl font-black py-3.5 px-3 sm:px-5 md:px-6 rounded-2xl border-4 border-[#04091a] shadow-[4px_4px_0px_0px_#fbbf24] hover:translate-y-1 hover:translate-x-1 hover:shadow-[2px_2px_0px_0px_#fbbf24] transition-all flex items-center justify-center gap-2 animate-shine cursor-pointer"
                   >
                     <ShoppingCart className="w-5 h-5 shrink-0 animate-wiggle text-[#FB0C17]" />
