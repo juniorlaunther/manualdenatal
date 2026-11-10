@@ -311,11 +311,11 @@ export default function App() {
   const [direction, setDirection] = useState(0);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [checkoutUrl, setCheckoutUrl] = useState("https://pay.cakto.com.br/wauej57");
-  const [comboCheckoutUrl, setComboCheckoutUrl] = useState("#");
+  const [comboCheckoutUrl, setComboCheckoutUrl] = useState("https://pay.cakto.com.br/3eaepnk");
 
   useEffect(() => {
     const checkoutBaseUrl = "https://pay.cakto.com.br/wauej57";
-    const comboBaseUrl = "#";
+    const comboBaseUrl = "https://pay.cakto.com.br/3eaepnk";
     const allowedParams = [
       "utm_source",
       "utm_medium",
