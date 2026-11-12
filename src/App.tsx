@@ -318,8 +318,8 @@ export default function App() {
     const comboBaseUrl = "https://pay.cakto.com.br/3eaepnk";
     const allowedParams = [
       "utm_source",
-      "utm_medium",
       "utm_campaign",
+      "utm_medium",
       "utm_content",
       "utm_term",
       "utm_id",
@@ -328,14 +328,28 @@ export default function App() {
     ];
 
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const storedParamsRaw = sessionStorage.getItem("manual_utm_params");
-      let storedParams = storedParamsRaw ? JSON.parse(storedParamsRaw) : {};
-      
-      const hasAnyAllowedParam = allowedParams.some(param => urlParams.has(param) && urlParams.get(param));
+      // 1. Get query string from search or hash if search is empty
+      let queryString = window.location.search;
+      if (!queryString && window.location.hash.includes("?")) {
+        queryString = window.location.hash.substring(window.location.hash.indexOf("?"));
+      }
 
-      if (hasAnyAllowedParam) {
-        storedParams = {};
+      const urlParams = new URLSearchParams(queryString);
+
+      // 2. Retrieve existing stored params from localStorage or sessionStorage
+      let storedParams: Record<string, string> = {};
+      try {
+        const local = localStorage.getItem("manual_utm_params");
+        const session = sessionStorage.getItem("manual_utm_params");
+        storedParams = local ? JSON.parse(local) : (session ? JSON.parse(session) : {});
+      } catch (e) {
+        // ignore parse error
+      }
+
+      // 3. Check if current URL brings any allowed parameters
+      const hasAnyIncomingParam = allowedParams.some(param => urlParams.has(param) && urlParams.get(param));
+
+      if (hasAnyIncomingParam) {
         allowedParams.forEach(param => {
           if (urlParams.has(param)) {
             const val = urlParams.get(param);
@@ -344,28 +358,35 @@ export default function App() {
             }
           }
         });
-        sessionStorage.setItem("manual_utm_params", JSON.stringify(storedParams));
       }
 
-      const newCheckoutUrl = new URL(checkoutBaseUrl);
-      allowedParams.forEach(key => {
-        if (storedParams[key]) {
-          newCheckoutUrl.searchParams.set(key, storedParams[key]);
-        }
-      });
-      setCheckoutUrl(newCheckoutUrl.toString());
+      // Default utm_source to 'FB' if not set
+      if (!storedParams.utm_source) {
+        storedParams.utm_source = "FB";
+      }
 
-      if (comboBaseUrl && comboBaseUrl.startsWith("http")) {
-        const newComboUrl = new URL(comboBaseUrl);
+      // Persist to both sessionStorage and localStorage
+      try {
+        sessionStorage.setItem("manual_utm_params", JSON.stringify(storedParams));
+        localStorage.setItem("manual_utm_params", JSON.stringify(storedParams));
+      } catch (e) {
+        // ignore storage errors
+      }
+
+      // 4. Build checkout URLs with the exact UTM parameters
+      const buildUrlWithParams = (baseUrl: string) => {
+        if (!baseUrl || !baseUrl.startsWith("http")) return baseUrl;
+        const u = new URL(baseUrl);
         allowedParams.forEach(key => {
           if (storedParams[key]) {
-            newComboUrl.searchParams.set(key, storedParams[key]);
+            u.searchParams.set(key, storedParams[key]);
           }
         });
-        setComboCheckoutUrl(newComboUrl.toString());
-      } else {
-        setComboCheckoutUrl("#");
-      }
+        return u.toString();
+      };
+
+      setCheckoutUrl(buildUrlWithParams(checkoutBaseUrl));
+      setComboCheckoutUrl(buildUrlWithParams(comboBaseUrl));
     } catch (e) {
       console.error("Error setting UTM params", e);
     }
@@ -679,7 +700,7 @@ export default function App() {
           {/* Pricing & CTA Box */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-5 bg-[#12214d]/95 p-4 sm:p-5 rounded-2xl border-2 border-dashed border-[#FB0C17]/80 shadow-[3px_3px_0px_0px_#04091a] relative">
             <div className="flex flex-col items-center md:items-start shrink-0">
-               <span className="line-through text-[#94a3b8] text-[18px] font-bold">De R$ 75,40</span>
+               <span className="line-through text-[#94a3b8] text-[18px] font-bold">De R$ 39,90</span>
                <div className="flex items-baseline gap-1">
                  <span className="text-[34px] sm:text-[38px] font-black text-[#ff2a34] drop-shadow-[0_0_14px_rgba(251,12,23,0.65)]">
                    Por R$ 27,90
@@ -688,11 +709,11 @@ export default function App() {
                <span className="text-xs text-[#fbbf24] font-bold">Acesso vitalício + todas atualizações mágicas</span>
             </div>
             
-            {/* CTA Button with 63% OFF badge */}
+            {/* CTA Button with 30% OFF badge */}
             <div className="relative w-full md:w-auto shrink-0 mt-2 sm:mt-0">
               <div className="absolute -top-3.5 -right-2 md:-right-3 z-20 pointer-events-none rotate-12">
                 <span className="inline-block bg-[#FB0C17] text-white text-xs md:text-sm font-black px-2.5 sm:px-3 py-1 rounded-full border-2 border-[#04091a] shadow-[2px_2px_0px_0px_#f59e0b] animate-scale-pulse tracking-wide">
-                  🎁 63% OFF
+                  🎁 30% OFF
                 </span>
               </div>
 
@@ -763,15 +784,18 @@ export default function App() {
           <div className="relative bg-[#0a1432] border-4 border-[#FB0C17] rounded-3xl p-3.5 shadow-[8px_8px_0px_0px_#f59e0b] rotate-1 max-w-sm mx-auto mb-8">
             <WashiTape type="candy" className="-top-3 left-6 -rotate-6 w-14 h-4" />
 
-            <img 
-              src="/images/manual-animado.webp" 
-              alt="Manual folheado por dentro" 
-              loading="lazy"
-              decoding="async"
-              width={480}
-              height={640}
-              className="w-full aspect-[3/4] object-cover border-4 border-dashed border-[#f59e0b] rounded-2xl" 
-            />
+            <picture>
+              <source type="image/webp" srcSet="/images/manual-animado.webp" />
+              <img 
+                src="/images/manual-animado.gif" 
+                alt="Manual folheado por dentro" 
+                loading="lazy"
+                decoding="async"
+                width={480}
+                height={640}
+                className="w-full aspect-[3/4] object-cover border-4 border-dashed border-[#f59e0b] rounded-2xl" 
+              />
+            </picture>
             
             {/* Festive Sketchy decorations */}
             <div className="absolute -top-6 -right-6 text-4xl animate-bounce">🎄</div>
